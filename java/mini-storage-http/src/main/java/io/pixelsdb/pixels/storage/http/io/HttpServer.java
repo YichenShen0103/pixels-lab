@@ -34,25 +34,31 @@ import java.security.cert.CertificateException;
 /**
  * Basic HTTP server using the netty library.
  */
-public final class HttpServer
-{
+public final class HttpServer {
     final HttpServerInitializer initializer;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel channel;
+    private Runnable onServerReady;
 
-    public HttpServer(HttpServerHandler handler) throws CertificateException, SSLException
-    {
+    public HttpServer(HttpServerHandler handler) throws CertificateException, SSLException {
         this.initializer = new HttpServerInitializer(HttpServerUtil.buildSslContext(), handler);
         handler.setServerCloser(this::close);
     }
 
-    public void serve(int PORT) throws InterruptedException
-    {
+    /**
+     * Set a callback to be invoked when the server is ready to accept connections.
+     * 
+     * @param onServerReady callback to run when server is bound to port
+     */
+    public void setOnServerReady(Runnable onServerReady) {
+        this.onServerReady = onServerReady;
+    }
+
+    public void serve(int PORT) throws InterruptedException {
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
-        try
-        {
+        try {
             ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 1024);
             b.group(bossGroup, workerGroup)
@@ -61,26 +67,28 @@ public final class HttpServer
                     .childHandler(this.initializer);
 
             channel = b.bind(PORT).sync().channel();
+
+            // Notify that server is ready
+            if (onServerReady != null) {
+                onServerReady.run();
+            }
+
             channel.closeFuture().sync();
-        } finally
-        {
+            channel.closeFuture().sync();
+        } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
     }
 
-    public void close()
-    {
-        if (channel != null)
-        {
+    public void close() {
+        if (channel != null) {
             channel.close();
         }
-        if (bossGroup != null)
-        {
+        if (bossGroup != null) {
             bossGroup.shutdownGracefully();
         }
-        if (workerGroup != null)
-        {
+        if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
     }

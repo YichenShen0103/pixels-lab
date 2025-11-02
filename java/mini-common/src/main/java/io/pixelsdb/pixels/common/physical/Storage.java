@@ -40,15 +40,24 @@ public interface Storage
      */
     enum Scheme
     {
-        hdfs,  // HDFS
-        file,  // local fs
-        s3,    // Amazon S3
-        minio, // Minio
-        redis, // Redis
-        gcs,   // google cloud storage
-        httpstream,  // http (netty) based stream storage
-        s3qs,   // AWS SQS+S3 based storage for intermediate data shuffle
-        mock; // mock
+        /* HDFS */
+        hdfs,
+        /* local fs */
+        file,
+        /* Amazon S3 */
+        s3,
+        /* Minio */
+        minio,
+        /* redis */
+        redis,
+        /* Google Cloud Storage */
+        gcs,
+        /* http (netty) based stream storage */
+        httpstream,
+        /* AWS SWS+S3 based storage for intermediate data shuffle */
+        s3qs,
+        /* mock */
+        mock;
 
         /**
          * Case-insensitive parsing from String name to enum value.

@@ -27,21 +27,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class PhysicalHttpStreamWriter implements PhysicalWriter
-{
+public class PhysicalHttpStreamWriter implements PhysicalWriter {
     private HttpStream httpStream;
     private String path;
     private long position;
     private DataOutputStream dataOutputStream;
 
-    public PhysicalHttpStreamWriter(Storage stream, String path) throws IOException
-    {
-        if (stream instanceof HttpStream)
-        {
+    public PhysicalHttpStreamWriter(Storage stream, String path) throws IOException {
+        if (stream instanceof HttpStream) {
             this.httpStream = (HttpStream) stream;
-        }
-        else
-        {
+        } else {
             throw new IOException("Storage is not httpStream");
         }
         this.path = path;
@@ -55,8 +50,7 @@ public class PhysicalHttpStreamWriter implements PhysicalWriter
      * @return starting offset after preparing.
      */
     @Override
-    public long prepare(int length) throws IOException
-    {
+    public long prepare(int length) throws IOException {
         return this.position;
     }
 
@@ -67,8 +61,7 @@ public class PhysicalHttpStreamWriter implements PhysicalWriter
      * @return start offset of content in the file.
      */
     @Override
-    public long append(ByteBuffer buffer) throws IOException
-    {
+    public long append(ByteBuffer buffer) throws IOException {
         buffer.flip();
         int length = buffer.remaining();
         return append(buffer.array(), buffer.arrayOffset() + buffer.position(), length);
@@ -83,8 +76,7 @@ public class PhysicalHttpStreamWriter implements PhysicalWriter
      * @return start offset of content in the file.
      */
     @Override
-    public long append(byte[] buffer, int offset, int length) throws IOException
-    {
+    public long append(byte[] buffer, int offset, int length) throws IOException {
         long start = this.position;
         dataOutputStream.write(buffer, offset, length);
         position += length;
@@ -92,20 +84,22 @@ public class PhysicalHttpStreamWriter implements PhysicalWriter
     }
 
     @Override
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         dataOutputStream.close();
     }
 
     @Override
-    public void flush() throws IOException
-    {
+    public void flush() throws IOException {
         dataOutputStream.flush();
     }
 
     @Override
-    public String getPath() { return path; }
+    public String getPath() {
+        return path;
+    }
 
     @Override
-    public int getBufferSize() { return Constants.HTTP_STREAM_BUFFER_SIZE; }
+    public int getBufferSize() {
+        return Constants.HTTP_STREAM_BUFFER_SIZE;
+    }
 }

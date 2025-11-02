@@ -21,90 +21,82 @@ package io.pixelsdb.pixels.storage.http;
 
 import io.pixelsdb.pixels.common.physical.Status;
 import io.pixelsdb.pixels.common.physical.Storage;
-import io.pixelsdb.pixels.storage.http.io.StreamPath;
 import io.pixelsdb.pixels.storage.http.io.HttpInputStream;
 import io.pixelsdb.pixels.storage.http.io.HttpOutputStream;
+import io.pixelsdb.pixels.storage.http.io.StreamPath;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public final class HttpStream implements Storage
-{
-    private static final String SchemePrefix = Scheme.httpstream.name() + "://";
+public final class HttpStream implements Storage {
 
-    public HttpStream() { }
+    private static final String SCHEMEPREFIX = Scheme.httpstream.name() + "://";
 
-    @Override
-    public Scheme getScheme() { return Scheme.httpstream; }
+    public HttpStream() {
+    }
 
     @Override
-    public String ensureSchemePrefix(String path) throws IOException
-    {
-        if (path.startsWith(SchemePrefix))
-        {
+    public Scheme getScheme() {
+        return Scheme.httpstream;
+    }
+
+    @Override
+    public String ensureSchemePrefix(String path) throws IOException {
+        if (path.startsWith(SCHEMEPREFIX)) {
             return path;
         }
-        if (path.contains("://"))
-        {
-            throw new IOException("Path '" + path + "' already has a different scheme prefix than '" + SchemePrefix + "'.");
+        if (path.contains("://")) {
+            throw new IOException("Path '" + path + "' already has a different scheme prefix than '" + SCHEMEPREFIX + "'.");
         }
-        return SchemePrefix + path;
+        return SCHEMEPREFIX + path;
     }
 
     /**
      * This method is used for read content from http.
-     * @param path
-     * @return
+     *
+     * @param path the http stream path
+     * @return DataInputStream to read data
      */
     @Override
-    public DataInputStream open(String path) throws IOException
-    {
+    public DataInputStream open(String path) throws IOException {
         StreamPath streamPath = new StreamPath(path);
-        if (!streamPath.valid)
-        {
+        if (!streamPath.valid) {
             throw new IOException("Path '" + path + "' is not valid.");
         }
 
         HttpInputStream inputStream;
-        try
-        {
+        try {
             inputStream = new HttpInputStream(streamPath.getHostName(), streamPath.getPort());
-        } catch (Exception e)
-        {
-            throw new IOException("Failed to open streamInputStream, " + e.toString());
+        } catch (Exception e) {
+            throw new IOException("Failed to open streamInputStream, " + e);
         }
         return new DataInputStream(inputStream);
     }
 
     @Override
-    public List<Status> listStatus(String... path)
-    {
+    public List<Status> listStatus(String... path) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<String> listPaths(String... path)
-    {
+    public List<String> listPaths(String... path) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Status getStatus(String path)
-    {
+    public Status getStatus(String path) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long getFileId(String path)
-    {
+    public long getFileId(String path) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean mkdirs(String path)
-    {
+    public boolean mkdirs(String path) {
         throw new UnsupportedOperationException();
     }
 
@@ -112,49 +104,45 @@ public final class HttpStream implements Storage
      * This method is used for write content to http.
      */
     @Override
-    public DataOutputStream create(String path, boolean overwrite, int bufferSize) throws IOException
-    {
+    public DataOutputStream create(String path, boolean overwrite, int bufferSize) throws IOException {
         StreamPath streamPath = new StreamPath(path);
-        if (!streamPath.valid)
-        {
+        if (!streamPath.valid) {
             throw new IOException("Path '" + path + "' is not valid.");
         }
         return new DataOutputStream(new HttpOutputStream(streamPath.getHostName(), streamPath.getPort(), bufferSize));
     }
 
     @Override
-    public boolean delete(String path, boolean recursive)
-    {
+    public boolean delete(String path, boolean recursive) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean supportDirectCopy() { return false; }
-
-    @Override
-    public boolean directCopy(String src, String dest)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void close() throws IOException { }
-
-    @Override
-    public boolean exists(String path)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isFile(String path)
-    {
+    public boolean supportDirectCopy() {
         return false;
     }
 
     @Override
-    public boolean isDirectory(String path)
-    {
+    public boolean directCopy(String src, String dest) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void close() throws IOException {
+    }
+
+    @Override
+    public boolean exists(String path) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isFile(String path) {
+        return false;
+    }
+
+    @Override
+    public boolean isDirectory(String path) {
         return false;
     }
 }
